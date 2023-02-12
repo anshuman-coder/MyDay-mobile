@@ -18,11 +18,11 @@ module.exports.checkUserWithFields = async function (body) {
 
   // console.log(searchFilter);
 
-  const result = await UserSchema.find({
+  let result = await UserSchema.find({
     $or: searchFilter
   });
 
-  // console.log(result)
+  console.log(result);
 
   if (result.length > 0) { 
     return true

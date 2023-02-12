@@ -30,7 +30,19 @@ module.signup = async function (req, res) {
 
 module.isUserNameAvailable = async function (req, res) {
   try {
-    
+    const { userName } = req.body;
+
+    if (!userName) { 
+      return failResponse(req, res, "Please enter userName!");
+    }
+
+    let result = await loginSignupFuncs.checkUserWithFields({ userName });
+
+    if (result) { 
+      return failResponse(req, res, "userName not Available!", 400);
+    }
+
+    return successResponse(req, res, "Available");
   } catch (error) {
     return errorResponse(req, res, error);
   }
