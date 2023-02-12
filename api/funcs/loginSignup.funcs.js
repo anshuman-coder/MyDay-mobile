@@ -63,3 +63,72 @@ module.exports.createAuthToken = function (data, { expiryTime }) {
 
   return token;
 }
+
+module.exports.getUserByEmail = async function (email) { 
+  let result = await UserSchema.findOne({ email, isActive: true });
+
+  result = result.toObject();
+
+  if (result) { 
+    return result;
+  }
+  return false;
+}
+
+module.exports.getUserByUserName = async function (userName) { 
+  let result = await UserSchema.findOne({ userName, inActive: true });
+
+  result = result.toObject();
+
+  if (result) { 
+    return result;
+  }
+
+  return false;
+}
+
+module.exports.login = async function (data) { 
+  const { loginMode, loginId, password } = data;
+  const hashPass = crypto.createHash("md5").update(password).digest("hex");
+
+  if (loginMode == "email") { 
+    let result = await this.getUserByEmail(loginId);
+
+    if (result) {
+      
+
+      if (result.password != hashPass) {
+        throw "Incorrect password!";
+      }
+
+      let token = this.createAuthToken(result, { expiryTime: '240h' });
+
+      result.token = token;
+
+      delete result.password;
+
+      return result;
+    }
+  }
+
+  if (loginMode == "userName") { 
+    let result = await this.getUserByUserName(loginId);
+
+    if (result) {
+
+      if (result.password != hashPass) { 
+        throw "Incorrect password!";
+      }
+
+      let token = this.createAuthToken(result, { expiryTime: '240h' });
+
+      result.token = token;
+
+      delete result.password;
+
+      return result;
+    }
+  }
+
+  throw "No user!";
+}

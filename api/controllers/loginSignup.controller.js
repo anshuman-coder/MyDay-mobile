@@ -50,15 +50,19 @@ module.isUserNameAvailable = async function (req, res) {
 
 module.isEmailAvailable = async function (req, res) {
   try {
-    
-  } catch (error) {
-    return errorResponse(req, res, error);
-  }
-}
+    const { email } = req.body;
 
-module.confirmPassword = async function (req, res) {
-  try {
-    
+    if (!email) { 
+      return failResponse(req, res, "please provide Email!");
+    }
+
+    const result = await loginSignupFuncs.checkUserWithFields({ email });
+
+    if (result) { 
+      return failResponse(req, res, "Email is unavailable!");
+    }
+
+    return successResponse(req, res, "Available");
   } catch (error) {
     return errorResponse(req, res, error);
   }
@@ -66,8 +70,34 @@ module.confirmPassword = async function (req, res) {
 
 module.login = async function(req, res) {
   try {
-    
+    const { loginMode, loginId, password } = req.body;
+
+    const loginModes = {
+      email: true,
+      userName: true
+    };
+
+    if (!loginModes[loginMode]) { 
+      return failResponse(req, res, "Invalid mode of login!");
+    }
+
+    const checkUser = await loginSignupFuncs.checkUserWithFields({
+      email: loginId,
+      userName: loginId
+    });
+
+    if (!checkUser) { 
+      return failResponse(req, res, "No user!");
+    }
+
+    const data = await loginSignupFuncs.login(req.body);
+
+    return successResponse(req, res, data);
+
   } catch (error) {
+    if (error == "Incorrect password!") { 
+      return failResponse(req, res, error);
+    }
     return errorResponse(req, res, error);
   }
 }
