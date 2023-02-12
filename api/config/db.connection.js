@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+mongoose.set('strictQuery', true);
+
 function connectionToDB(url) { 
   return new Promise((resolve, reject) => { 
     mongoose.connect(url)
